@@ -1,6 +1,6 @@
 public class trappingrainwater {
     public static void main(String[] args) {
-        int[] arr = {0,0,1,0,5};
+        int[] arr = {0,0,5,0,5};
         System.out.println(trappingrainwater1(arr));
     }
     public static int trappingrainwater1(int [] arr){
