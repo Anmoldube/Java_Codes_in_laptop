@@ -1,0 +1,58 @@
+// package Generics;
+
+public class CustomArrayList {
+
+    private int DefaultSize = 11;
+    private static int[] Data;
+    private int size = 0;
+
+    public CustomArrayList() {
+        this.Data = new int[DefaultSize];
+    }
+
+    public void add(int num) {
+        if (isFull()) {
+            expand();
+        }
+        Data[size++] = num;
+    }
+
+    public void expand() {
+        // TODO Auto-generated method stub
+        int[] newData = new int[Data.length * 2];
+        for (int i = 0; i < Data.length; i++) {
+            newData[i] = Data[i];
+        }
+    }
+
+    public int remove(int index) {
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
+        }
+        int oldValue = Data[index];
+        int numMoved = size - index - 1;
+        if (numMoved > 0) {
+            System.arraycopy(Data, index + 1, Data, index, numMoved);
+        }
+        Data[--size] = 0;
+        return oldValue;
+    }
+
+
+    public static void main(String[] args) {
+        // ArrayList list = new ArrayList();
+        CustomArrayList list = new CustomArrayList();
+        list.add(1);
+        list.add(1);
+        list.add(1);
+        list.add(1);
+        list.remove(1);
+        System.out.println(list.size);
+
+    }
+
+    public boolean isFull() {
+        return size == Data.length;
+
+    }
+}
