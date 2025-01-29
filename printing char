@@ -1,0 +1,9 @@
+public class Main
+{
+	public static void main(String[] args) {
+	   	 int x = 65;
+         for(int i = x; i < 91; i++){
+         System.out.println((char)(i));
+         }
+	}
+ }
