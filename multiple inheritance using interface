@@ -1,0 +1,24 @@
+interface Add {
+    // final int a = 10;
+    int add(int a, int b);
+}
+interface Sub{
+    int sub(int a, int b);
+}
+
+
+class Testcase implements Add, Sub {
+    public int add(int a, int b) {
+        return a + b;
+    }
+    public int sub(int a, int b) {
+        return a - b;
+    }
+}
+class A {
+    public static void main(String[] args) {
+        Testcase t = new Testcase();
+        System.out.println(t.add(10, 20));
+        System.out.println(t.sub(10, 20));
+    }
+}
