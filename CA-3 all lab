@@ -1,0 +1,863 @@
+Design and analysis of algorithm 
+CA3 LAB CODE 
+1.Find minimum_cost_spanning_tree_using_kruskal_s_algorithm 
+// Question: Find Minimum Cost Spanning Tree using Kruskal's Algorithm 
+// Question ID: 309ef9e2-25eb-4c24-b762-4a755ada0874 
+// Language: java 
+// Generated: 2025-08-14T13:25:09.193Z 
+// Student ID: N/A 
+/* 
+* Write a program to find minimum cost spanning tree using Kruskal's Algorithm. 
+*  
+* Your program should: 
+* 1. Implement Kruskal's algorithm to find minimum spanning tree 
+* 2. Use Union-Find (Disjoint Set) data structure for cycle detection 
+* 3. Sort edges by weight and process them in ascending order 
+* 4. Return the minimum cost of the spanning tree 
+*  
+* IMPORTANT INSTRUCTIONS: 
+* - Implement only the kruskalMST() method 
+* - Do NOT modify the main() method or class structure 
+* - Use Union-Find operations: find() and union() 
+* - Sort edges by weight before processing 
+* - Return the total minimum cost as an integer 
+*/ 
+import java.util.*; 
+class Edge { 
+    int src, dest, weight; 
+    Edge(int src, int dest, int weight) { 
+        this.src = src; 
+        this.dest = dest; 
+        this.weight = weight; 
+    } 
+} 
+public class solution { 
+     
+    /** 
+     * Method to find minimum cost spanning tree using Kruskal's algorithm 
+     * @param vertices - Number of vertices in the graph 
+     * @param edges - List of edges with weights 
+     * @return - Minimum cost of spanning tree 
+     */ 
+    public static int kruskalMST(int vertices, List<Edge> edges) { 
+        // 1. Sort edges by weight 
+        Collections.sort(edges, Comparator.comparingInt(e -> e.weight)); 
+         
+        // 2. Initialize Union-Find 
+        int[] parent = new int[vertices]; 
+        int[] rank = new int[vertices]; 
+        for (int i = 0; i < vertices; i++) { 
+            parent[i] = i; 
+            rank[i] = 0; 
+        } 
+         
+        int mstCost = 0; 
+        int edgesUsed = 0; 
+         
+        // 3. Process edges 
+        for (Edge edge : edges) { 
+            int rootSrc = find(parent, edge.src); 
+            int rootDest = find(parent, edge.dest); 
+             
+            if (rootSrc != rootDest) { 
+                union(parent, rank, rootSrc, rootDest); 
+                mstCost += edge.weight; 
+                edgesUsed++; 
+                 
+                if (edgesUsed == vertices - 1) { 
+                    break; // MST complete 
+                } 
+            } 
+        } 
+         
+        return mstCost; 
+    } 
+     
+    /** 
+     * Helper method to find parent with path compression 
+     */ 
+    public static int find(int[] parent, int i) { 
+        if (parent[i] != i) { 
+            parent[i] = find(parent, parent[i]); // Path compression 
+        } 
+        return parent[i]; 
+    } 
+     
+    /** 
+     * Helper method to union two sets by rank 
+     */ 
+    public static void union(int[] parent, int[] rank, int x, int y) { 
+        int rootX = find(parent, x); 
+        int rootY = find(parent, y); 
+         
+        if (rank[rootX] < rank[rootY]) { 
+            parent[rootX] = rootY; 
+        } else if (rank[rootX] > rank[rootY]) { 
+            parent[rootY] = rootX; 
+        } else { 
+            parent[rootY] = rootX; 
+            rank[rootX]++; 
+        } 
+    } 
+     
+    /**************************************************** 
+     * DO NOT EDIT THE MAIN METHOD BELOW 
+     ****************************************************/ 
+    public static void main(String[] args) { 
+        String input = {input}; 
+        String[] parts = input.split("\\|"); 
+         
+        int vertices = Integer.parseInt(parts[0]); 
+        List<Edge> edges = new ArrayList<>(); 
+         
+        // Parse edges from input 
+        for (int i = 1; i < parts.length; i++) { 
+            String[] edgeData = parts[i].split("-"); 
+            int src = Integer.parseInt(edgeData[0]); 
+            int dest = Integer.parseInt(edgeData[1]); 
+            int weight = Integer.parseInt(edgeData[2]); 
+            edges.add(new Edge(src, dest, weight)); 
+        } 
+         
+        int result = kruskalMST(vertices, edges); 
+        System.out.print(result); 
+    } 
+} 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+2. find_minimum_spanning_tree_using_prim_s_algorithm_ 
+// Question: Find Minimum Spanning Tree using Prim's Algorithm 
+// Question ID: 76f7556c-4ecc-4e91-a0cf-79138564b13e 
+// Language: java 
+// Generated: 2025-08-14T13:35:08.251Z 
+// Student ID: N/A 
+/* 
+* Write a Java program to find the Minimum Spanning Tree of a graph using Prim's algorithm. 
+*  
+* Your program should: 
+* 1. Implement Prim's algorithm to find minimum spanning tree 
+* 2. Use adjacency matrix representation for the graph 
+* 3. Start from vertex 0 and grow the MST by adding minimum weight edges 
+* 4. Return the minimum cost of the spanning tree 
+*  
+* IMPORTANT INSTRUCTIONS: 
+* - Implement only the primMST() method 
+* - Do NOT modify the main() method or class structure 
+* - Use arrays to track visited vertices and minimum edge weights 
+* - Always select the minimum weight edge connecting MST to non-MST vertex 
+* - Return the total minimum cost as an integer 
+*/ 
+import java.util.*; 
+public class solution { 
+/** 
+* Method to find minimum cost spanning tree using Prim's algorithm 
+     * @param graph - Adjacency matrix representation of the graph 
+     * @param vertices - Number of vertices in the graph 
+     * @return - Minimum cost of spanning tree 
+     */ 
+    public static int primMST(int[][] graph, int vertices) { 
+        boolean[] inMST = new boolean[vertices]; 
+        int[] weights = new int[vertices]; 
+         
+        // Initialize all weights to infinity 
+        Arrays.fill(weights, Integer.MAX_VALUE); 
+         
+        // Start from vertex 0 
+        weights[0] = 0; 
+         
+        int totalCost = 0; 
+         
+        for (int count = 0; count < vertices; count++) { 
+            // Pick the vertex with the minimum weight edge 
+            int u = findMinVertex(weights, inMST, vertices); 
+            inMST[u] = true; 
+            totalCost += weights[u]; 
+             
+            // Update weights of adjacent vertices 
+            for (int v = 0; v < vertices; v++) { 
+                if (graph[u][v] != 0 && !inMST[v] && graph[u][v] < weights[v]) { 
+                    weights[v] = graph[u][v]; 
+                } 
+            } 
+        } 
+         
+        return totalCost; 
+} 
+/** 
+* Helper method to find vertex with minimum weight that is not in MST 
+* @param weights - Array of minimum weights to reach each vertex 
+* @param inMST - Array indicating whether vertex is in MST 
+* @param vertices - Number of vertices 
+* @return - Index of vertex with minimum weight 
+*/ 
+public static int findMinVertex(int[] weights, boolean[] inMST, int vertices) { 
+int minVertex = -1; 
+for (int i = 0; i < vertices; i++) { 
+if (!inMST[i] && (minVertex == -1 || weights[i] < weights[minVertex])) { 
+minVertex = i; 
+} 
+} 
+return minVertex; 
+} 
+/**************************************************** 
+* DO NOT EDIT THE MAIN METHOD BELOW 
+* THIS METHOD IS PROVIDED FOR INPUT/OUTPUT HANDLING 
+* ONLY IMPLEMENT THE METHODS ABOVE 
+****************************************************/ 
+public static void main(String[] args) { 
+String input = {input}; 
+String[] parts = input.split("\\|"); 
+int vertices = Integer.parseInt(parts[0]); 
+int[][] graph = new int[vertices][vertices]; 
+// Initialize graph with infinity (represented by 0 for no edge) 
+for (int i = 0; i < vertices; i++) { 
+for (int j = 0; j < vertices; j++) { 
+graph[i][j] = 0; 
+} 
+} 
+// Parse edges from input and build adjacency matrix 
+for (int i = 1; i < parts.length; i++) { 
+String[] edgeData = parts[i].split("-"); 
+int src = Integer.parseInt(edgeData[0]); 
+int dest = Integer.parseInt(edgeData[1]); 
+int weight = Integer.parseInt(edgeData[2]); 
+graph[src][dest] = weight; 
+graph[dest][src] = weight; // Undirected graph 
+} 
+int result = primMST(graph, vertices); 
+System.out.print(result); 
+} 
+} 
+3. implement_the_heap_sort_algorithm_ 
+// Question: Implement the Heap Sort Algorithm 
+// Question ID: 39f93c06-59e8-4b5e-8f61-6ef96f404a96 
+// Language: java 
+// Generated: 2025-08-14T13:22:12.460Z 
+// Student ID: N/A 
+/* 
+* Write a Java program to implement the Heap Sort algorithm. 
+*  
+* Your program should: 
+* 1. Implement heap sort using max heap approach 
+* 2. Build a max heap from the input array 
+* 3. Extract maximum elements one by one and place at the end 
+* 4. Maintain heap property using heapify operation 
+*  
+* IMPORTANT INSTRUCTIONS: 
+* - Implement the heapSort(), buildMaxHeap(), and heapify() methods 
+* - Do NOT modify the main() method or class structure 
+* - Sort the array in ascending order using max heap 
+* - Use in-place sorting (modify the original array) 
+* - Return the sorted array 
+*/ 
+import java.util.*; 
+public class solution { 
+/** 
+* Main method to perform heap sort on an array 
+     * @param arr - Array to be sorted 
+     * @return - Sorted array in ascending order 
+     */ 
+    public static int[] heapSort(int[] arr) { 
+        int n = arr.length; 
+         
+        // 1. Build max heap 
+        buildMaxHeap(arr, n); 
+         
+        // 2. Extract elements one by one from the heap 
+        for (int i = n - 1; i > 0; i--) { 
+            // Swap the root (largest) with the last element 
+            int temp = arr[0]; 
+            arr[0] = arr[i]; 
+            arr[i] = temp; 
+             
+            // 3. Heapify the reduced heap 
+            heapify(arr, i, 0); 
+        } 
+         
+        return arr; 
+    } 
+     
+    /** 
+     * Method to build max heap from array 
+     * @param arr - Array to build heap from 
+     * @param n - Size of the array 
+     */ 
+    public static void buildMaxHeap(int[] arr, int n) { 
+        // Start from the last non-leaf node and heapify each node 
+        for (int i = n / 2 - 1; i >= 0; i--) { 
+            heapify(arr, n, i); 
+        } 
+    } 
+     
+    /** 
+     * Method to maintain max heap property 
+     * @param arr - Array representing the heap 
+     * @param n - Size of the heap 
+     * @param i - Index of the node to heapify 
+     */ 
+    public static void heapify(int[] arr, int n, int i) { 
+        int largest = i; // Initialize largest as root 
+        int left = 2 * i + 1; // left child index 
+        int right = 2 * i + 2; // right child index 
+         
+        // If left child is larger than root 
+        if (left < n && arr[left] > arr[largest]) { 
+            largest = left; 
+        } 
+         
+        // If right child is larger than largest so far 
+        if (right < n && arr[right] > arr[largest]) { 
+            largest = right; 
+        } 
+         
+        // If largest is not root 
+        if (largest != i) { 
+            int swap = arr[i]; 
+            arr[i] = arr[largest]; 
+            arr[largest] = swap; 
+             
+            // Recursively heapify the affected subtree 
+            heapify(arr, n, largest); 
+        } 
+    } 
+     
+    /**************************************************** 
+     * DO NOT EDIT THE MAIN METHOD BELOW 
+     * THIS METHOD IS PROVIDED FOR INPUT/OUTPUT HANDLING 
+     * ONLY IMPLEMENT THE METHODS ABOVE 
+     ****************************************************/ 
+    public static void main(String[] args) { 
+        String input = {input}; 
+        String[] parts = input.split(","); 
+         
+        int[] arr = new int[parts.length]; 
+        for (int i = 0; i < parts.length; i++) { 
+            arr[i] = Integer.parseInt(parts[i].trim()); 
+        } 
+         
+        int[] result = heapSort(arr); 
+         
+        for (int i = 0; i < result.length; i++) { 
+            System.out.print(result[i]); 
+            if (i < result.length - 1) { 
+                System.out.print(","); 
+            } 
+        } 
+    } 
+} 
+ 
+ 
+Java Pograming CA3 LAB CODE 
+1. demonstrate_working_on_enum_in_a_switch_case 
+// Question: Demonstrate Working on Enum in a Switch Case 
+// Question ID: 1fd98e36-7681-4f8b-8552-fa9c369fea5a 
+// Language: java 
+// Generated: 2025-08-14T10:39:02.297Z 
+// Student ID: N/A 
+/* 
+* Write a program in JAVA to demonstrate working on enum in a switch case. 
+*  
+* Your program should: 
+* 1. Define an enum for days of the week (MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY) 
+* 2. Use a switch case to determine if a given day is a weekday or weekend 
+* 3. Return appropriate message based on the day 
+*  
+* IMPORTANT INSTRUCTIONS: 
+* - Implement only the getDayType() method 
+* - Do NOT modify the main() method, enum definition, or class structure 
+* - Use switch case statement to handle different enum values 
+* - Return "Weekday" for Monday to Friday 
+* - Return "Weekend" for Saturday and Sunday 
+* - Handle default case appropriately 
+*/ 
+import java.util.*; 
+enum Day { 
+    MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY 
+} 
+ 
+public class solution { 
+     
+    public static String getDayType(Day day) { 
+          /** 
+     * Method to determine if a day is weekday or weekend using switch case 
+     * @param day - Day enum value 
+     * @return - String indicating "Weekday" or "Weekend" 
+     */ 
+    
+        switch (day) { 
+            case MONDAY: 
+            case TUESDAY: 
+            case WEDNESDAY: 
+            case THURSDAY: 
+            case FRIDAY: 
+                return "Weekday"; 
+            case SATURDAY: 
+            case SUNDAY: 
+                return "Weekend"; 
+            default: 
+                return ""; 
+        } 
+    } 
+     
+    /**************************************************** 
+     * DO NOT EDIT THE MAIN METHOD BELOW 
+     * THIS METHOD IS PROVIDED FOR INPUT/OUTPUT HANDLING 
+     * ONLY IMPLEMENT THE getDayType() METHOD ABOVE 
+     ****************************************************/ 
+    public static void main(String[] args) { 
+        String input = {input}; 
+        Day day = Day.valueOf(input.toUpperCase()); 
+        String result = getDayType(day); 
+        System.out.print(result); 
+    } 
+} 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+2. inter_thread_communication_using_wait_and_notify_ 
+// Question: Inter-Thread Communication using wait() and notify() 
+// Question ID: 7ff92cd2-9a09-4ffd-bdfd-5ef9cb649828 
+// Language: java 
+// Generated: 2025-08-14T10:30:35.250Z 
+// Student ID: N/A 
+/* 
+* Write a Java program to demonstrate inter-thread communication using wait() and notify() methods. 
+*  
+* Your program should: 
+* 1. Implement a shared buffer class with put() and get() methods 
+* 2. Use wait() and notify() for thread coordination 
+* 3. Ensure thread-safe operations with synchronized methods 
+* 4. Handle producer-consumer communication properly 
+*  
+* IMPORTANT INSTRUCTIONS: 
+* - Implement only the SharedBuffer class methods: put() and get() 
+* - Do NOT modify the main() method or class structure 
+* - Use synchronized methods to ensure thread safety 
+* - Use wait() when buffer is full (for put) or empty (for get) 
+* - Use notify() to wake up waiting threads 
+* - The buffer can hold only one item at a time 
+*/ 
+class SharedBuffer { 
+private String item; 
+private boolean available = false; // false means empty 
+/** 
+     * Method to put an item into the buffer 
+     * Waits if buffer already has an item (full) 
+     */ 
+    public synchronized void put(String value) { 
+        while (available) { // wait if already full 
+            try { 
+                wait(); 
+            } catch (InterruptedException e) { 
+                Thread.currentThread().interrupt(); 
+            } 
+        } 
+        this.item = value;      // set item 
+        this.available = true;  // mark as available 
+        notifyAll();            // notify waiting threads 
+    } 
+ 
+    /** 
+     * Method to get an item from the buffer 
+     * Waits if buffer is empty 
+     */ 
+    public synchronized String get() { 
+        while (!available) { // wait if empty 
+            try { 
+                wait(); 
+            } catch (InterruptedException e) { 
+                Thread.currentThread().interrupt(); 
+            } 
+        } 
+        String value = this.item; // get item 
+        this.available = false;   // mark as empty 
+        notifyAll();              // notify waiting threads 
+        return value; 
+    } 
+} 
+ 
+public class solution { 
+     
+    /**************************************************** 
+     * DO NOT EDIT THE MAIN METHOD BELOW 
+     * THIS METHOD IS PROVIDED FOR INPUT/OUTPUT HANDLING 
+     * ONLY IMPLEMENT THE SharedBuffer METHODS ABOVE 
+     ****************************************************/ 
+    public static void main(String[] args) { 
+        String input = {input}; 
+        SharedBuffer buffer = new SharedBuffer(); 
+        StringBuilder result = new StringBuilder(); 
+         
+        // Parse operations from input 
+        String[] operations = input.split("\\|"); 
+         
+        for (String operation : operations) { 
+            String[] parts = operation.split(":"); 
+            String action = parts[0]; 
+             
+            if (action.equals("PUT")) { 
+                String value = parts[1]; 
+                buffer.put(value); 
+                result.append("PUT-").append(value).append(","); 
+            } else if (action.equals("GET")) { 
+                String value = buffer.get(); 
+                result.append("GET-").append(value).append(","); 
+            } 
+        } 
+         
+        // Remove trailing comma and print 
+        if (result.length() > 0) { 
+            result.setLength(result.length() - 1); 
+        } 
+        System.out.print(result.toString()); 
+            } 
+) 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+3.read_a_file_into_an_array 
+// Question: Read a File Into an Array 
+// Question ID: 13d41c0e-d5da-4d6d-a5e7-e5463988b431 
+// Language: java 
+// Generated: 2025-08-14T10:25:15.541Z 
+// Student ID: N/A 
+/* 
+* Write a program in JAVA to read a file into an array. 
+*  
+* Your program should: 
+* 1. Read the contents of a file line by line 
+* 2. Store each line as an element in a String array 
+* 3. Return the array containing all file lines 
+*  
+* IMPORTANT INSTRUCTIONS: 
+* - Implement only the readFileToArray() method 
+* - Do NOT modify the main() method or the class structure 
+* - Use proper file I/O operations (FileReader, BufferedReader, etc.) 
+* - Handle IOException appropriately using try-catch blocks 
+* - The method receives a filename and should read from that actual file 
+* - Return an empty array if file cannot be read or doesn't exist 
+*/ 
+import java.io.*; 
+import java.util.*; 
+public class solution { 
+    /** 
+     * Method to read file content into an array 
+     * @param filename - The name of the file to read 
+     * @return - String array containing each line of the file 
+     */ 
+    public static String[] readFileToArray(String filename) { 
+     List<String> lines = new ArrayList<>(); 
+        try (BufferedReader br = new BufferedReader(new FileReader(filename))) { 
+            String line; 
+            while ((line = br.readLine()) != null) { 
+                lines.add(line); 
+            } 
+        } catch (IOException e) { 
+            // Handle exception gracefully 
+            e.printStackTrace(); 
+        } 
+        return lines.toArray(new String[0]); 
+    } 
+     
+    /**************************************************** 
+     * DO NOT EDIT THE MAIN METHOD BELOW 
+     * THIS METHOD IS PROVIDED FOR INPUT/OUTPUT HANDLING 
+     * ONLY IMPLEMENT THE readFileToArray() METHOD ABOVE 
+     ****************************************************/ 
+    public static void main(String[] args) { 
+        try { 
+            String input = {input}; 
+            // Create a temporary file with the input content 
+            String filename = "tempfile.txt"; 
+            FileWriter writer = new FileWriter(filename); 
+            // Convert pipe-separated content to actual newlines 
+            String fileContent = input.replace("|", "\n"); 
+            writer.write(fileContent); 
+            writer.close(); 
+             
+            // Call the method to read from the file 
+            String[] result = readFileToArray(filename); 
+             
+            // Print the result 
+            for (int i = 0; i < result.length; i++) { 
+                System.out.print(result[i]); 
+                if (i < result.length - 1) { 
+                    System.out.print(","); 
+                } 
+            } 
+             
+            // Clean up the temporary file 
+            new File(filename).delete(); 
+        } catch (IOException e) { 
+            System.out.print(""); 
+        } 
+    } 
+} 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Advance Database Management 
+1. create_before_insert_trigger_to_prevent_duplicate_appointments_ -- Question: Create BEFORE INSERT Trigger to Prevent Duplicate Appointments -- Question ID: 40e7aaf8-6eda-45db-a436-4703c571c9eb -- Language: sql -- Generated: 2025-08-14T08:01:08.124Z -- Student ID: N/A -- INSTRUCTIONS: -- 1. Create the patients table (already provided) -- 2. Create a BEFORE INSERT trigger named 'validate_patient_age' on patients table -- 3. Create a trigger function that: --    a) Checks if NEW.age is between 0 and 120 (inclusive) --    b) If age is invalid, RAISE EXCEPTION with custom error message --    c) If age is valid, allow the insertion by returning NEW -- 4. Test the trigger by: --    a) Inserting a patient with valid age (should succeed) --    b) Attempting to insert patients with invalid ages (should fail with error messages) -- 5. Note: Error messages from trigger are expected and demonstrate trigger functionality 
+DROP TABLE IF EXISTS patients CASCADE; 
+CREATE TABLE patients ( 
+patient_id INT PRIMARY KEY, 
+patient_name VARCHAR(100), 
+age INT, 
+gender VARCHAR(10), 
+  phone VARCHAR(15), 
+  address VARCHAR(200) 
+); 
+ 
+INSERT INTO patients VALUES 
+(1001, 'Rajesh Kumar', 35, 'Male', '9876543210', 'MG Road, Bengaluru'), 
+(1002, 'Priya Sharma', 28, 'Female', '9123456789', 'Connaught Place, Delhi'), 
+(1003, 'Suresh Reddy', 45, 'Male', '8765432109', 'Banjara Hills, Hyderabad'); 
+ -- Create the trigger function to validate patient age -- This function will be executed before each new row is inserted. 
+CREATE OR REPLACE FUNCTION validate_patient_age() 
+RETURNS TRIGGER AS $$ 
+BEGIN 
+    -- Check if the new patient's age is less than 0. 
+    IF NEW.age < 0 THEN 
+        -- If the age is invalid, raise an exception to prevent the insertion. 
+        RAISE EXCEPTION 'Invalid age: Age cannot be a negative number.'; 
+    END IF; 
+    -- If the age is valid, return the new row to proceed with the insertion. 
+    RETURN NEW; 
+END; 
+$$ LANGUAGE plpgsql; 
+ -- Create the BEFORE INSERT trigger -- This trigger is set on the 'patients' table and will fire -- before an INSERT operation, executing the validate_patient_age() function. 
+CREATE OR REPLACE TRIGGER check_patient_age 
+BEFORE INSERT ON patients 
+FOR EACH ROW 
+EXECUTE FUNCTION validate_patient_age(); 
+-- Test 1: Insert patient with valid age (should succeed) 
+INSERT INTO patients VALUES 
+(1004, 'Anita Gupta', 32, 'Female', '7654321098', 'Sector 18, Noida'); -- Test 2: Insert patient with invalid negative age (will show error - this is expected) -- The trigger should block this insert and raise the custom exception. 
+INSERT INTO patients VALUES 
+(1005, 'Vikram Singh', -5, 'Male', '6543210987', 'Park Street, Kolkata'); 
+2. display_upcoming_appointments_using_for_loop_in_stored_procedure -- Question: Display Upcoming Appointments Using FOR Loop in Stored Procedure -- Question ID: 4c77b8b1-5945-42fb-8249-ddf32cc55988 -- Language: sql -- Generated: 2025-08-14T07:54:10.034Z -- Student ID: N/A -- INSTRUCTIONS: -- 1. Create the patients, appointments, and appointment_output tables -- 2. Write a stored procedure named 'display_upcoming_appointments' with no parameters -- 3. Inside the procedure: --    a) Clear any existing data from appointment_output table using DELETE --    b) Use a FOR loop to iterate through appointments within next 7 days --    c) JOIN appointments and patients tables to get patient names --    d) Filter appointments where appointment_date is between CURRENT_DATE and CURRENT_DATE + 7 --    e) For each record, INSERT patient_name and appointment_date into appointment_output --    f) Use RAISE NOTICE to display each patient_name and appointment_date -- 4. Call the procedure -- 5. Display the final result using SELECT * FROM appointment_output -- Drop existing tables to ensure a clean slate for the script 
+DROP TABLE IF EXISTS patients; 
+DROP TABLE IF EXISTS appointments; 
+DROP TABLE IF EXISTS appointment_output; -- Create the patients table 
+CREATE TABLE patients ( 
+patient_id INT PRIMARY KEY, 
+patient_name VARCHAR(100), 
+age INT, 
+gender VARCHAR(10), 
+phone VARCHAR(15), 
+address VARCHAR(200) 
+); -- Create the appointments table with a foreign key to patients 
+CREATE TABLE appointments ( 
+appointment_id INT PRIMARY KEY, 
+patient_id INT, 
+doctor_name VARCHAR(100), 
+appointment_date DATE, 
+appointment_time TIME, 
+department VARCHAR(50), 
+FOREIGN KEY (patient_id) REFERENCES patients(patient_id) 
+); -- Create the output table where the results will be stored 
+CREATE TABLE appointment_output ( 
+patient_name TEXT, 
+appointment_date DATE, 
+doctor_name TEXT, 
+department TEXT 
+); -- Insert sample data into the patients table 
+INSERT INTO patients VALUES 
+(2001, 'Amit Sharma', 35, 'Male', '9876543210', 'Sector 15, Noida'), 
+(2002, 'Priya Mehta', 28, 'Female', '9123456789', 'Koramangala, Bengaluru'), 
+(2003, 'Vikram Singh', 42, 'Male', '8765432109', 'Bandra West, Mumbai'), 
+(2004, 'Sneha Reddy', 31, 'Female', '7654321098', 'Jubilee Hills, Hyderabad'), 
+(2005, 'Raman Iyer', 55, 'Male', '6543210987', 'T Nagar, Chennai'); 
+ -- Insert sample data into the appointments table -- Note: Some appointments are outside the 7-day range to test the filter 
+INSERT INTO appointments VALUES 
+(3001, 2001, 'Dr. Rajesh Kumar', CURRENT_DATE + INTERVAL '2 days', '10:00:00', 'Cardiology'), 
+(3002, 2002, 'Dr. Sunita Patel', CURRENT_DATE + INTERVAL '5 days', '14:30:00', 'Dermatology'), 
+(3003, 2003, 'Dr. Anil Gupta', CURRENT_DATE + INTERVAL '1 day', '09:15:00', 'Orthopedics'), 
+(3004, 2004, 'Dr. Meera Joshi', CURRENT_DATE + INTERVAL '10 days', '11:45:00', 'Gynecology'), 
+(3005, 2005, 'Dr. Arjun Nair', CURRENT_DATE + INTERVAL '3 days', '16:20:00', 'Neurology'), 
+(3006, 2001, 'Dr. Kavita Sharma', CURRENT_DATE + INTERVAL '8 days', '08:30:00', 'General Medicine'), 
+(3007, 2003, 'Dr. Deepak Modi', CURRENT_DATE + INTERVAL '6 days', '15:00:00', 'ENT'); 
+ -- Create or replace the stored procedure 
+CREATE OR REPLACE PROCEDURE display_upcoming_appointments() 
+LANGUAGE plpgsql 
+AS $$ 
+DECLARE 
+    -- A variable to hold each record from the query result 
+    rec RECORD; 
+BEGIN 
+    -- a) Clear any existing data from the appointment_output table 
+    DELETE FROM appointment_output; 
+ 
+    -- b, c, d) Loop through appointments for the next 7 days by joining the tables 
+    FOR rec IN 
+        SELECT 
+            p.patient_name, 
+            a.appointment_date, 
+            a.doctor_name, 
+            a.department 
+        FROM 
+            appointments a 
+        JOIN 
+            patients p ON a.patient_id = p.patient_id 
+        WHERE 
+            a.appointment_date >= CURRENT_DATE AND a.appointment_date <= CURRENT_DATE + INTERVAL '7 days' 
+    LOOP 
+        -- e) Insert the fetched data into the appointment_output table 
+        INSERT INTO appointment_output (patient_name, appointment_date, doctor_name, department) 
+        VALUES (rec.patient_name, rec.appointment_date, rec.doctor_name, rec.department); 
+ 
+        -- f) Display a notice for each appointment 
+        RAISE NOTICE 'Upcoming appointment for: %, on % with Dr. % in department %', rec.patient_name, 
+rec.appointment_date, rec.doctor_name, rec.department; 
+    END LOOP; 
+END; 
+$$; 
+ -- 4. Call the stored procedure to execute it 
+CALL display_upcoming_appointments(); 
+ -- 5. Display the final result from the appointment_output table 
+SELECT * FROM appointment_output; 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+3.patient_lookup_using_stored_procedure_with_exception_handling -- Question: Patient Lookup Using Stored Procedure with Exception Handling -- Question ID: c9335665-8f73-457a-883a-08c71299b388 -- Language: sql -- Generated: 2025-08-14T07:58:13.767Z -- Student ID: N/A -- INSTRUCTIONS: -- 1. Create the patients and patient_lookup_result tables (already provided) -- 2. Write a stored procedure named 'lookup_patient' that accepts patient_id as parameter -- 3. Inside the procedure: --    a) Clear any existing data from patient_lookup_result table using DELETE --    b) Retrieve patient details using SELECT INTO with STRICT keyword --    c) If patient found, INSERT patient_id, patient_name, and 'Patient Found' status --    d) Handle NO_DATA_FOUND exception when patient ID is invalid --    e) If patient not found, INSERT patient_id, 'Patient Not Registered', and 'Patient Not Found' status -- 4. Call the procedure with a sample patient_id (e.g., 1003) -- 5. Display the final result using SELECT * FROM patient_lookup_result -- Drop existing tables to ensure a clean slate -- Drop existing tables to ensure a clean slate 
+DROP TABLE IF EXISTS patients CASCADE; 
+DROP TABLE IF EXISTS patient_lookup_result; -- Create the patients table 
+CREATE TABLE patients ( 
+patient_id INT PRIMARY KEY, 
+patient_name VARCHAR(100), 
+age INT, 
+gender VARCHAR(10), 
+phone VARCHAR(15), 
+address VARCHAR(200), 
+doctor_assigned VARCHAR(100) 
+); -- Create the output table to store the lookup results 
+CREATE TABLE patient_lookup_result ( 
+patient_id INT, 
+patient_name TEXT, 
+status TEXT 
+); -- Insert sample data into the patients table 
+INSERT INTO patients VALUES 
+(1001, 'Rajesh Gupta', 45, 'Male', '9876543210', 'MG Road, Bengaluru', 'Dr. Priya Sharma'), 
+(1002, 'Sunita Devi', 38, 'Female', '9123456789', 'Connaught Place, Delhi', 'Dr. Anil Kumar'), 
+(1003, 'Arjun Singh', 29, 'Male', '8765432109', 'Park Street, Kolkata', 'Dr. Meera Patel'), 
+(1004, 'Kavitha Reddy', 52, 'Female', '7654321098', 'Banjara Hills, Hyderabad', 'Dr. Suresh Nair'), 
+(1005, 'Ravi Krishnan', 33, 'Male', '6543210987', 'Marine Drive, Mumbai', 'Dr. Anjali Verma'); -- Stored procedure to find a patient by ID and handle exceptions -- This procedure takes a patient ID as input 
+CREATE OR REPLACE PROCEDURE find_patient_by_id(p_patient_id INT) 
+LANGUAGE plpgsql 
+AS $$ 
+DECLARE -- A variable to hold the patient name found in the database 
+v_patient_name VARCHAR(100); 
+BEGIN -- Clear any previous results from the output table to avoid confusion 
+DELETE FROM patient_lookup_result; 
+ 
+    -- Use a BEGIN-EXCEPTION-END block for robust error handling 
+    BEGIN 
+        -- Attempt to find a single patient name for the given ID 
+        -- If no record is found, a NO_DATA_FOUND exception will be raised 
+        SELECT patient_name INTO v_patient_name FROM patients WHERE patient_id = p_patient_id; 
+ 
+        -- If a patient is found, insert the details into the output table 
+        INSERT INTO patient_lookup_result (patient_id, patient_name, status) 
+        VALUES (p_patient_id, v_patient_name, 'Found'); 
+ 
+        -- Display a notice confirming the patient was found 
+        RAISE NOTICE 'Patient with ID % was found: %', p_patient_id, v_patient_name; 
+ 
+    EXCEPTION 
+        -- This block handles the case where no patient is found with the given ID 
+        WHEN NO_DATA_FOUND THEN 
+            INSERT INTO patient_lookup_result (patient_id, patient_name, status) 
+            VALUES (p_patient_id, NULL, 'Not Found'); 
+            RAISE NOTICE 'Patient with ID % was not found.', p_patient_id; 
+ 
+        -- This handles the unlikely case of a duplicate primary key 
+        WHEN TOO_MANY_ROWS THEN 
+            INSERT INTO patient_lookup_result (patient_id, patient_name, status) 
+            VALUES (p_patient_id, NULL, 'Duplicate ID'); 
+            RAISE NOTICE 'Multiple patients found with ID %.', p_patient_id; 
+ 
+        -- A general catch-all for any other unexpected errors 
+        WHEN OTHERS THEN 
+            INSERT INTO patient_lookup_result (patient_id, patient_name, status) 
+            VALUES (p_patient_id, NULL, 'Error'); 
+RAISE NOTICE 'An error occurred while looking up patient with ID %.', p_patient_id; 
+END; 
+END; 
+$$; -- Call the procedure to find a patient that exists (e.g., patient ID 1003) 
+CALL find_patient_by_id(1003); -- Display the result from the output table 
+SELECT * FROM patient_lookup_result; -- Now call the procedure to find a patient that does not exist (e.g., patient ID 9999) 
+CALL find_patient_by_id(9999); -- Display the result from the output table 
+SELECT * FROM patient_lookup_result;  
